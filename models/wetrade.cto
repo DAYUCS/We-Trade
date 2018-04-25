@@ -1,0 +1,216 @@
+/**
+ * A business network for We.Trade
+ * Bank Payment Undertaking(BPU) and Invoice Financing
+ */
+
+namespace com.eximbills.tf.bpu
+
+/**
+ * The status of a purchase order
+ */
+enum PurchaseOrderStatus {
+  o CREATED
+  o BPU_CONFIRMED
+  o SHIPMENT
+  o CONFIRM_RECEIPT_OF_GOODS
+  o PAYMENT
+  o END
+}
+
+/**
+ * The status of a shipment
+ */
+enum ShipmentStatus {
+  o CREATED
+  o ARRIVED
+}
+
+/**
+ * The status of an invoice financing
+ */
+ enum InvoiceFinancingStatus {
+   o NONE
+   o FINANCING_REQUESTED
+   o FINANCED
+   o PAYMENT
+ }
+
+/**
+ * Currency
+ */
+ enum Currency {
+   o USD
+   o EUR
+   o JPY
+   o HKD
+   o RMB
+ }
+
+/**
+ * A buyer initiates PO and requests bank to provide BPU 
+ */
+ transaction InitPurchaseOrder {
+   o String purchaseOrderId
+   o String buyerId
+   o String buyerBankId
+   o String supplierId
+   o String supplierBankId
+   o DateTime orderDateTime
+   o Integer paymentDays
+   o TransactionAmount purchaseOrderAmount
+   o Double minInvoiceAmountAdjust optional
+   o Double maxInvoiceAmountAdjust optional
+   o String goodsDescription
+ }
+
+/**
+ * An abstract transaction that is related to a PurchaseOrder
+ */
+abstract transaction PurchaseOrderTransaction {
+  --> PurchaseOrder purchaseOrder
+}
+
+/**
+ * A notification that supplier has shipped order and
+ * sent invoice through the platform
+ */
+transaction ShipOrder extends PurchaseOrderTransaction {
+  o String invoiceId
+  o String shipmentInformation optional
+  o DateTime shipmentDateTime
+  o Double invoiceAmount
+}
+
+/**
+ * A notification that bank has confirmed to provide
+ * BPU for the purchase order.
+ */
+transaction ConfirmBpu extends PurchaseOrderTransaction {
+}
+
+/**
+ * An abstract transaction that is related to a Shipment
+ */
+abstract transaction InvoiceTransaction {
+  --> Invoice invoice
+}
+
+/**
+ * A notification that buyer has confirmed the receipt of goods
+ */
+ transaction ConfirmReciptOfGoods extends InvoiceTransaction {
+ }
+
+/**
+ * A notification that supplier has requested the invoice financing
+ */
+ transaction RequestInvoiceFinancing extends InvoiceTransaction {
+ }
+
+/**
+ * A notification that supplier's bank has provided the invoice financing
+ */
+ transaction ProvideInvoiceFinancing extends InvoiceTransaction {
+ }
+
+/**
+ * A notification that buyer's bank has debited buyer account and
+ * initiated payment fo invoice on due date, either...
+ *  - to supplier's bank, if invoice has been financed or
+ *  - to supplier's account
+ */
+ transaction Payment extends InvoiceTransaction {
+ }
+
+/**
+ * Defines a contract between a Grower and an Importer to ship using
+ * a Shipper, paying a set unit price. The unit price is multiplied by
+ * a penality factor proportional to the deviation from the min and max
+ * negociated temperatures for the shipment.
+ */
+asset PurchaseOrder identified by purchaseOrderId {
+  o String purchaseOrderId
+  --> Buyer buyer
+  --> BuyerBank buyerBank
+  --> Supplier supplier
+  --> SupplierBank supplierBank
+  o PurchaseOrderStatus status
+  o DateTime orderDateTime
+  o Integer paymentDays
+  o TransactionAmount purchaseOrderAmount
+  o Double minInvoiceAmountAdjust optional
+  o Double maxInvoiceAmountAdjust optional
+  o String goodsDescription optional
+  o TransactionAmount purchaseOrderBalance optional
+}
+
+/**
+ * A shipment being tracked as an asset on the ledger
+ */
+asset Invoice identified by invoiceId {
+  o String invoiceId
+  o String shipmentInformation optional
+  o ShipmentStatus shipmentStatus
+  o DateTime shipmentDateTime
+  o TransactionAmount invoiceAmount
+  o InvoiceFinancingStatus invoiceFinancingStatus optional
+  o TransactionAmount invoiceFinancingAmount optional
+  --> PurchaseOrder purchaseOrder
+}
+
+/**
+ * A concept for a simple street address
+ */
+concept Address {
+  o String city optional
+  o String country
+  o String street optional
+  o String zip optional
+}
+
+/**
+ * A concept for transaction amount
+ */
+ concept TransactionAmount {
+   o Currency currency
+   o Double amount
+ }
+
+/**
+ * An abstract participant type in this business network
+ */
+abstract participant Business identified by email {
+  o String email
+  o Address address
+  o TransactionAmount accountBalance
+}
+
+/**
+ * A BuyerBank is a type of participant in the network
+ */
+participant BuyerBank extends Business {
+}
+
+/**
+ * A SupplierBank is a type of participant in the network
+ */
+participant SupplierBank extends Business {
+}
+
+/**
+ * A Supplier is a type of participant in the network
+ */
+participant Supplier extends Business {
+}
+
+/**
+ * An Buyer is a type of participant in the network
+ */
+participant Buyer extends Business {
+}
+
+/**
+ * JUST FOR INITIALIZING A DEMO
+ */
+transaction SetupDemo {
+}

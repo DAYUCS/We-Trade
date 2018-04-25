@@ -1,0 +1,41 @@
+Command to Fabric and generate a peer admin card:
+    cd ~/fabric-tools
+    ./startFabric.sh
+    ./createPeerAdminCard.sh
+
+
+Command to create network archive:
+    cd ~/we-trade
+    composer archive create -a dist/we-trade.bna --sourceType dir --sourceName .
+
+Command to install/start newwork:
+  composer network install -a ./dist/we-trade.bna -c PeerAdmin@hlfv1
+  composer network start -c PeerAdmin@hlfv1 -A admin -S adminpw -n we-trade -V 0.2.19
+(Note: this step will create a business network card which named admin@we-trade.card. This 
+is a zip file which contains connection.json and metadata.json. Copy these two files to
+~/home/dayu/.composer/cards/admin@we-trade before start composer rest server.)
+
+Command to start composer rest server:
+  composer-rest-server -c admin@we-trade
+
+Note:
+If you are using our simple development server from composer-tools then you can add the following to the peer definition to see if it addresses the problem(v 0.19 #3731)
+
+- CORE_CHAINCODE_STARTUPTIMEOUT=1200s
+
+in the file ~/fabric-tools/fabric-scripts/hlfv11/composer/docker-compose.yml
+eg, a snippet from the peer definition.
+
+peer0.org1.example.com:
+    container_name: peer0.org1.example.com
+    image: hyperledger/fabric-peer:$ARCH-1.1.0
+    environment:
+      - CORE_LOGGING_LEVEL=debug
+peer0.org1.example.com:
+    container_name: peer0.org1.example.com
+    image: hyperledger/fabric-peer:$ARCH-1.1.0
+    environment:
+      - CORE_LOGGING_LEVEL=debug
+      - CORE_CHAINCODE_STARTUPTIMEOUT=1200s
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+You will need to restart your peer (but easiest would be to restart the whole fabric network)
