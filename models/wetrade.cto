@@ -111,6 +111,7 @@ abstract transaction InvoiceTransaction {
  * A notification that supplier's bank has provided the invoice financing
  */
  transaction ProvideInvoiceFinancing extends InvoiceTransaction {
+   o TransactionAmount financingAmount
  }
 
 /**

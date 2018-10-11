@@ -59,9 +59,9 @@
 
 6. Run ProvideInvoiceFinancing for the supplier's bank to provide invoice financing
    Input Data:
-   {
-  "$class": "com.eximbills.tf.bpu.ProvideInvoiceFinancing",
-  "invoice": "resource:com.eximbills.tf.bpu.Invoice#INV_002"
+   { "$class": "com.eximbills.tf.bpu.ProvideInvoiceFinancing",
+   "financingAmount": { "$class": "com.eximbills.tf.bpu.TransactionAmount", "currency": "USD", "amount": 8000}, 
+   "invoice": "resource:com.eximbills.tf.bpu.Invoice#INV_002" 
 }
 
 7. Run Payment for the buyer's bank to debit buyer accout and initiate payment of invoice on due date, either...
